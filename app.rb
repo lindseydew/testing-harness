@@ -1,8 +1,29 @@
 require 'sinatra'
 require 'json'
+require 'csv'
 
 get '/graph' do
   erb :index
+end
+
+get '/test' do
+  csv = CSV.read("resources/ratings.csv", headers: true)
+  hash = {}
+  csv.each do |row|
+    movie_id = row[1]
+    rating = row[2]
+    ratings = hash[movie_id] || []
+    hash[movie_id] = ratings.push(rating)
+  end
+  hash1 = {}
+  hash.each do |k,v|
+    average_rating = v.map(&:to_i).reduce(0, :+)/(v.length*1.0)
+    hash1[k] = average_rating
+  end
+  hash2 = hash1.sort_by { |k,v| -v }
+  top_movie = hash2[0][0]
+  rating = hash2[0][1]
+  {:top_movie => top_movie, :rating => rating}.to_json
 end
 
 get '/api' do
@@ -20,7 +41,6 @@ get '/api' do
   {:x => x, :y => y}.to_json
 end
 
-
 def last(arr)
   t1 = Time.now
   arr[arr.length - 1]
@@ -34,5 +54,3 @@ def sort(arr)
   t2 = Time.now
   t2 - t1
 end
-
-last([1,2,3,4,5])
