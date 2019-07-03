@@ -7,23 +7,7 @@ get '/graph' do
 end
 
 get '/test' do
-  csv = CSV.read("resources/ratings.csv", headers: true)
-  hash = {}
-  csv.each do |row|
-    movie_id = row[1]
-    rating = row[2]
-    ratings = hash[movie_id] || []
-    hash[movie_id] = ratings.push(rating)
-  end
-  hash1 = {}
-  hash.each do |k,v|
-    average_rating = v.map(&:to_i).reduce(0, :+)/(v.length*1.0)
-    hash1[k] = average_rating
-  end
-  hash2 = hash1.sort_by { |k,v| -v }
-  top_movie = hash2[0][0]
-  rating = hash2[0][1]
-  {:top_movie => top_movie, :rating => rating}.to_json
+  {:top_movie => "top_movie", :rating => "rating"}.to_json
 end
 
 get '/api' do
@@ -35,10 +19,19 @@ get '/api' do
     array_size += array_size
     array = Array.new(array_size) { rand 1000 }
     x.push(array_size)
-    time_taken = sort(array)
+    time_taken = last(array)
     y.push(time_taken)
     end;
   {:x => x, :y => y}.to_json
+end
+
+def pairs(arr)
+  total = 0
+  arr.each { |e|
+    arr.each { |a|
+      total += e + a
+    }
+  }
 end
 
 def last(arr)
@@ -46,6 +39,16 @@ def last(arr)
   arr[arr.length - 1]
   t2 = Time.now
   t2 - t1
+end
+
+def sum(arr)
+  total = 0
+  arr.each { |e| total += e }
+  return total
+end
+
+def reverse(arr)
+  arr.reverse
 end
 
 def sort(arr)
